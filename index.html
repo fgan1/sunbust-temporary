@@ -63,7 +63,6 @@
     <script type="text/javascript">
       // (refactoring) TODO this constants must be setted in another file (Issue 3)
       const GEOSERVER_URL = 'http://150.165.85.24/geoserver/wms/';
-      const LAYERS_GEOSERVER_URL_PARAMETER = 'LAYERS'
 
       calculateChartSize = () => {
         const DEFAULT_PERCENT_SIZE = 0.7;
@@ -296,7 +295,7 @@
           var layer1 = new ol.layer.Image({
             source: new ol.source.ImageWMS({
               url: GEOSERVER_URL,
-              params: { LAYERS_GEOSERVER_URL_PARAMETER: choosen.imgName },
+              params: { LAYERS : choosen.imgName },
               ratio: 1,
               serverType: "geoserver"
             })
