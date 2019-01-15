@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Sunbursts</title>
+    <!-- TODO download this css (Issue 1) -->
+    <link rel="stylesheet" href="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/css/ol.css">
+
+    <!-- TODO put in other file (Issue 2) -->
+    <style>
+      #map {
+        width: 100%;
+        height: 100%;
+        border: 2px solid black;
+        border-radius: 25px;
+        overflow: hidden;
+      }
+
+      #chart {
+        width: 50%;
+        height: 50%;
+        padding-left: 10%;
+        padding-top: 20%;
+      }
+
+      .content {
+        width: 100%;
+        height: 500px;
+      }
+
+      .container-chart {
+        float: left;
+        width: 35%;
+      }
+
+      .container-map {
+        float: right;
+        width: 65%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="content">
+      <div id="container-chart" class="container-chart">
+        <div id="chart" class="chart"></div>
+      </div>
+
+      <div class="container-map">
+        <div id="map" class="map"></div>
+      </div>
+    </div>
+
+    <!-- TODO download this scripts (Issue 1) -->
+    <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/build/ol.js"></script>
+    <script src="//unpkg.com/sunburst-chart"></script>
+    <script src="//d3js.org/d3.v5.min.js"></script>
+
+    <script type="text/javascript">
+      // (refactoring) TODO this constants must be setted in another file (Issue 3)
+      const GEOSERVER_URL = 'http://150.165.85.24/geoserver/wms/';
+      const LAYERS_GEOSERVER_URL_PARAMETER = 'LAYERS'
+
+      calculateChartSize = () => {
+        const DEFAULT_PERCENT_SIZE = 0.7;
+        const DEFAULT_SIZE = 400;
+        try {
+          return parseInt($("#container-chart").css('width')) * DEFAULT_PERCENT_SIZE;
+        } catch (error) {
+          return DEFAULT_SIZE;
+        }
+      }
+
+      $(document).ready(() => {
+        let defaultL = new ol.layer.Tile({
+          source: new ol.source.OSM()
+        });
+
+        // TODO (refactoring) put the center parameters in a constant (Issue 4)
+        let map = new ol.Map({
+          layers: [defaultL],
+          target: "map",
+          view: new ol.View({
+            center: [-4615573.515972, -794945.094166],
+            zoom: 4
+          })
+        });
+
+        // TODO analyze this approach, because only works in the page initialization (Issue 5)
+        let chartContainerSize = calculateChartSize();
+
+        let color = d3.scaleOrdinal(d3.schemePaired);
+        // TODO (refactoring) put the "data" in another file. (Issue 6)
+        let sunburst = Sunburst()
+          .data({
+            name: "Desertificação",
+            imgName: "geonode:aedm_1",
+            children: [
+              {
+                name: "Estado",
+                imgName: "geonode:dprur_wgs",
+                size: 2,
+                children: [
+                  {
+                    name: "Condição Ambiental",
+                    size: 3.3,
+                    imgName: "geonode:aernp",
+                    children: [
+                      {
+                        name: "Indice de Aridez",
+                        size: 3.3
+                      },
+                      {
+                        name: "Indice de Seca",
+                        size: 3.3
+                      },
+                      {
+                        name: "Cobertura Vegetal",
+                        size: 3.3
+                      },
+                      {
+                        name: "Grau de Fertilidade do Solo",
+                        imgName: "geonode:uapha",
+                        size: 3.3
+                      },
+                      {
+                        name: "Risco de Erosão Hidrica",
+                        size: 3.3
+                      }
+                    ]
+                  },
+                  {
+                    name: "Condição Econômica",
+                    size: 3.3,
+                    imgName: "geonode:afagp_1",
+                    children: [
+                      {
+                        name: "Renda Per Capita Rural",
+                        size: 3.3
+                      },
+                      {
+                        name: "Produtividade do Feijão",
+                        size: 3.3
+                      },
+                      {
+                        name: "Produtividade do Milho",
+                        size: 3.3
+                      }
+                    ]
+                  },
+                  {
+                    name: "Condição Social",
+                    size: 3.3,
+                    imgName: "geonode:analf",
+                    children: [
+                      {
+                        name: "Densidade de População Rural",
+                        size: 3.3
+                      },
+                      {
+                        name: "Estabelecimentos Rurais Dirigidos por Mulheres",
+                        size: 3.3
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                name: "Força Motriz",
+                imgName: "geonode:vptr",
+                size: 2,
+                children: [
+                  {
+                    name: "Concentração de Terra",
+                    size: 3.3,
+                    imgName: "geonode:dprur",
+                    children: [
+                      {
+                        name:
+                          "Área dos estabelecimentos Rurais menores que o modulo fiscal",
+                        size: 3.3
+                      },
+                      {
+                        name:
+                          "Área dos estabelecimentos Rurais sob regime de não propriedade",
+                        size: 3.3
+                      }
+                    ]
+                  },
+                  {
+                    name: "Influência da População Urbana",
+                    imgName: "geonode:dtsaa_nmin",
+                    size: 3.3
+                  },
+                  {
+                    name: "Desigualdade Social no Campo",
+                    size: 3.3,
+                    imgName: "geonode:nogip",
+                    children: [
+                      {
+                        name: "Analfabetismo no Campo",
+                        size: 3.3
+                      },
+                      {
+                        name: "População rural abaixo da linha de pobreza",
+                        size: 3.3
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                name: "Resposta",
+                imgName: "geonode:nong",
+                size: 2,
+                children: [
+                  {
+                    name: "Organização da Sociedade Civil",
+                    size: 2
+                  },
+                  {
+                    name: "Organização do Poder Público",
+                    size: 2
+                  }
+                ]
+              },
+              {
+                name: "Impacto",
+                imgName: "geonode:npdrs",
+                size: 2,
+                children: [
+                  {
+                    name: "Taxa de Migração do Campo para a Cidade",
+                    size: 5
+                  },
+                  {
+                    name: "Variação da Participação da Agropecuária no PIB",
+                    size: 5
+                  }
+                ]
+              },
+              {
+                name: "Pressão",
+                imgName: "geonode:npuc",
+                size: 2,
+                children: [
+                  {
+                    name: "Desmatamento",
+                    size: 5,
+                    imgName: "geonode:pralp",
+                    children: [
+                      {
+                        name: "Avanço da fronteira agropecuária",
+                        imgName: "geonode:vpr_10",
+                        size: 3.3
+                      },
+                      {
+                        name: "Mudança da cobertura vegetal",
+                        imgName: "geonode:rpcr",
+                        size: 3.3
+                      }
+                    ]
+                  },
+                  {
+                    name: "Manejamento Inadequado da Terra",
+                    size: 5,
+                    imgName: "geonode:rctf2006mm",
+                    children: [
+                      {
+                        name: "Carga animal excessiva",
+                        size: 3.3
+                      },
+                      {
+                        name: "Recorrência de Incêndio",
+                        size: 3.3
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          })
+          .label("name")
+          .size("size")
+          .width(chartContainerSize)
+          .height(chartContainerSize)
+          .color((d, parent) => color(parent ? parent.data.name : null));
+
+        sunburst.onNodeClick(choosen => {
+          map.getLayers().clear();
+          sunburst.focusOnNode(choosen);
+          var layer1 = new ol.layer.Image({
+            source: new ol.source.ImageWMS({
+              url: GEOSERVER_URL,
+              params: { LAYERS_GEOSERVER_URL_PARAMETER: choosen.imgName },
+              ratio: 1,
+              serverType: "geoserver"
+            })
+          });
+          map.addLayer(defaultL);
+          map.addLayer(layer1);
+        });
+
+        sunburst($("#chart")[0]);
+      });
+    </script>
+  </body>
+</html>
